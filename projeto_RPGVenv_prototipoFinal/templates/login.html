@@ -1,0 +1,78 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal RPG - Entrar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+</head>
+<body class="text-white min-h-screen flex flex-col justify-between relative overflow-x-hidden">
+
+    <div class="ondas-background">
+        <div class="onda onda-1"></div>
+        <div class="onda onda-2"></div>
+        <div class="onda onda-3"></div>
+    </div>
+
+    <header class="w-full max-w-7xl mx-auto px-4 pt-6">
+        <nav class="bg-purple-950/60 border border-white/10 rounded-2xl px-6 py-4 flex items-center justify-between backdrop-blur-md">
+            <div class="flex items-center space-x-8">
+                <a href="{{ url_for('inicio') }}" class="flex items-center space-x-2">
+                    <img class="w-8 h-8" src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo">
+                </a>
+                <div class="hidden md:flex items-center space-x-6 text-sm font-medium text-purple-200">
+                    <a href="{{ url_for('inicio') }}" class="hover:text-white transition">Início</a>
+                    <a href="{{ url_for('livros') }}" class="hover:text-white transition">Arquivos</a>
+                    <a href="{{ url_for('colecoes') }}" class="hover:text-white transition">Coleções</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="flex-grow flex items-center justify-center px-4 py-12 z-10">
+        <div class="w-full max-w-md">
+            
+            {% include 'partials/flash.html' %}
+
+            <div class="bg-purple-950/40 border border-white/10 rounded-3xl p-8 sm:p-10 backdrop-blur-md shadow-2xl">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-black tracking-tight mb-2">Entrar na Plataforma</h2>
+                    <p class="text-purple-200/70 text-sm">Crie e gerencie seus cenários e personagens universais</p>
+                </div>
+
+                <form action="{{ url_for('login') }}" method="POST" class="space-y-6">
+                    {% if next_url %}
+                        <input type="hidden" name="next" value="{{ next_url }}">
+                    {% endif %}
+                    <div>
+                        <label for="email" class="block text-xs font-semibold text-purple-200 uppercase tracking-wider mb-2">Endereço de E-mail</label>
+                        <input type="email" id="email" name="email" required placeholder="seuemail@exemplo.com" class="w-full bg-purple-950/60 border border-white/10 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/20 rounded-xl px-4 py-3.5 text-white placeholder-purple-400/50 outline-none transition text-sm">
+                    </div>
+
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label for="senha" class="text-xs font-semibold text-purple-200 uppercase tracking-wider">Sua Senha</label>
+                        </div>
+                        <input type="password" id="senha" name="senha" required placeholder="••••••••••••" class="w-full bg-purple-950/60 border border-white/10 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/20 rounded-xl px-4 py-3.5 text-white placeholder-purple-400/50 outline-none transition text-sm">
+                    </div>
+
+                    <button type="submit" class="w-full bg-violet-400 hover:bg-violet-500 text-purple-950 font-black py-4 rounded-xl text-sm tracking-wide transition shadow-lg shadow-violet-500/10">
+                        ENTRAR
+                    </button>
+                </form>
+
+                <div class="mt-6 rounded-2xl border border-violet-400/20 bg-violet-400/10 px-4 py-3 text-center text-sm text-purple-200">
+                    Para testes, você pode entrar com qualquer e-mail e senha preenchidos neste formulário.
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="w-full text-center py-6 text-xs text-purple-400/60">
+        <p>&copy; 2026 Universal RPG. Todos os direitos reservados.</p>
+    </footer>
+
+</body>
+</html>

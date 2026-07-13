@@ -1,0 +1,312 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal RPG - Perfil</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+</head>
+<body class="text-white min-h-screen flex flex-col justify-between relative overflow-x-hidden">
+
+    <div class="ondas-background">
+        <div class="onda onda-1"></div>
+        <div class="onda onda-2"></div>
+        <div class="onda onda-3"></div>
+    </div>
+
+    <header class="w-full max-w-7xl mx-auto px-4 pt-6">
+        {% include 'partials/flash.html' %}
+
+        <nav class="bg-purple-950/35 border border-white/10 rounded-2xl px-6 py-4 flex items-center justify-between backdrop-blur-md shadow-lg shadow-violet-950/20">
+            <div class="flex items-center space-x-8">
+                <a href="{{ url_for('inicio') }}" class="flex items-center space-x-2">
+                    <img class="w-8 h-8" src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo">
+                </a>
+                <div class="hidden md:flex items-center space-x-6 text-sm font-medium text-purple-200">
+                    <a href="{{ url_for('inicio') }}" class="hover:text-white transition">Início</a>
+                    <a href="{{ url_for('livros') }}" class="hover:text-white transition">Arquivos</a>
+                    <a href="{{ url_for('colecoes') }}" class="hover:text-white transition">Coleções</a>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                {% if usuario.chave_ativada == False %}
+                <button onclick="abrirModalResgate()" class="bg-violet-400 hover:bg-violet-500 text-purple-950 font-bold px-4 py-2 rounded-xl text-sm flex items-center space-x-2 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M15 7a2 2 0 114 0c0 1.1-.9 2-2 2a2 2 0 01-2-2zM12 14c2.2 0 4-1.8 4-4H8c0 2.2 1.8 4 4 4z"/>
+                        <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z"/>
+                    </svg>
+                    <span>Resgatar Chave</span>
+                </button>
+                {% endif %}
+                <a href="{{ url_for('perfil') }}" class="w-10 h-10 rounded-full border-2 border-violet-400 overflow-hidden hover:opacity-80 transition block">
+                    {% if usuario.imagem_avatar %}
+                        <img src="{{ usuario.imagem_avatar }}" alt="Avatar" class="w-full h-full object-cover">
+                    {% else %}
+                        <div class="w-full h-full bg-violet-600 flex items-center justify-center font-bold text-white">
+                            {{ usuario.nome[0] | upper }}
+                        </div>
+                    {% endif %}
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="flex-grow w-full max-w-7xl mx-auto px-4 py-8 space-y-6 z-10">
+        
+        <div class="relative bg-gradient-to-r from-purple-900/40 to-violet-800/20 backdrop-blur-md overflow-hidden border border-white/10 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-center sm:space-x-8">
+                    <span class="rounded-full flex items-center justify-center text-[12px] text-violet-300 bg-violet-800 border border-violet-400 rounded-full font-bold flex items-center" style="padding: 0.5rem; position: absolute; z-index: 10; left: 2.7rem; top: 2rem;">
+                        {% if usuario.chave_ativada %}Nv. 2{% else %}Nv. 1{% endif %}
+                    </span>
+            <div class="absolute -right-16 -top-16 w-64 h-64 bg-violet-500/10 rounded-full blur-3xl"></div>
+            <div class="absolute right-10 bottom-0 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl"></div>
+            
+            <div class="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 border-violet-400/30 overflow-hidden flex-shrink-0 mb-4 sm:mb-0">
+                {% if usuario.imagem_avatar %}
+                    <img src="{{ usuario.imagem_avatar }}" alt="Avatar Perfil" class="w-full h-full object-cover">
+                {% else %}
+                    <div class="w-full h-full bg-violet-700/60 flex items-center justify-center">
+                        <svg class="w-12 h-12 text-violet-200" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                        </svg>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="text-center sm:text-left space-y-2">
+                <div class="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-3">
+                    <h2 class="text-2xl sm:text-3xl font-black tracking-tight text-white">{{ usuario.nome }}</h2>
+                </div>
+                <p class="text-purple-300 text-sm font-medium">
+                    {% if usuario.chave_ativada %}Beta Tester{% else %}Não Licenciado{% endif %}
+                </p>
+                <p class="text-purple-200/50 text-xs tracking-wide">{{ usuario.email }}</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <div class="lg:col-span-2 order-2 lg:order-1">
+
+                <div id="conteudo-construcao" class="aba-conteudo bg-purple-950/40 border border-white/10 rounded-3xl p-8 backdrop-blur-md min-h-[300px] flex flex-col items-center justify-center text-center space-y-4 shadow-lg shadow-violet-950/10">
+                    <svg class="w-16 h-16 text-violet-400/70" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17 17.25 21A1.5 1.5 0 0 0 19.5 18.75l-5.83-5.83M11.42 15.17l2.49-2.49M11.42 15.17H5.25A2.25 2.25 0 0 1 3 12.92V11.21a2.25 2.25 0 0 1 2.25-2.25h1.21A2.25 2.25 0 0 1 8.71 9.71l2.49 2.49M13.91 12.68l2.49-2.49A2.25 2.25 0 0 0 17.07 7.7l-1.21-1.21a2.25 2.25 0 0 0-2.49-.67L10.88 7.3a1.5 1.5 0 0 1-2.04 1.5l1.58-1.58" />
+                    </svg>
+                    <h3 class="text-xl font-bold text-white">Estamos em construção</h3>
+                    <p class="text-sm text-purple-200/50">Novidades em breve :D</p>
+                </div>              
+                
+                <div id="conteudo-editar" class="aba-conteudo hidden bg-purple-950/40 border border-white/10 rounded-3xl p-6 sm:p-8 backdrop-blur-md min-h-[300px] shadow-lg shadow-violet-950/10">
+                    <h3 class="text-xl font-black mb-4 flex items-center space-x-2 text-white">
+                        <svg class="w-5 h-5 text-violet-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        <span>Editar Informações de Perfil</span>
+                    </h3>
+                    
+                    <form action="{{ url_for('perfil') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+                        
+                        <div>
+                            <label for="avatar_arquivo" class="block text-xs font-semibold text-purple-200 uppercase tracking-wider mb-2">Foto de Perfil</label>
+                            <div class="flex items-center space-x-4">
+                                <div class="relative w-20 h-20 rounded-full border-2 border-violet-400/30 overflow-hidden flex-shrink-0 bg-purple-950/60">
+                                    <img id="avatar_preview_edit" src="{{ usuario.imagem_avatar or '' }}" alt="Avatar" class="w-full h-full object-cover {% if not usuario.imagem_avatar %}hidden{% endif %}">
+                                    <div id="avatar_placeholder_edit" class="w-full h-full flex items-center justify-center {% if usuario.imagem_avatar %}hidden{% endif %}">
+                                        <svg class="w-8 h-8 text-purple-400/40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="flex-1">
+                                    <input type="file" id="avatar_arquivo" name="avatar_arquivo" accept="image/*" onchange="previewAvatar(this)" class="w-full text-sm text-purple-300 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-violet-400/20 file:text-violet-300 file:hover:bg-violet-400/30 transition cursor-pointer">
+                                    <p class="text-[10px] text-purple-400/50 mt-1">Formatos: PNG, JPG, GIF, WEBP (máx. 16MB)</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        
+                        <div>
+                            <label for="nome" class="block text-xs font-semibold text-purple-200 uppercase tracking-wider mb-2">Seu Nome de Exibição</label>
+                            <input type="text" id="nome" name="nome" value="{{ usuario.nome }}" required placeholder="Como quer ser chamado?" class="w-full bg-purple-950/60 border border-white/10 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/20 rounded-xl px-4 py-3.5 text-white placeholder-purple-400/50 outline-none transition text-sm">
+                        </div>
+
+                        <button type="submit" class="bg-violet-400 hover:bg-violet-500 text-purple-950 font-black px-6 py-3 rounded-xl text-sm transition">
+                            Salvar Alterações
+                        </button>
+                    </form>
+                </div>
+
+                <div id="conteudo-chaves" class="aba-conteudo hidden bg-purple-950/40 border border-white/10 rounded-3xl p-6 sm:p-8 backdrop-blur-md min-h-[300px] shadow-lg shadow-violet-950/10">
+                    <h3 class="text-xl font-black mb-4 flex items-center space-x-2 text-white">
+                        <svg class="w-5 h-5 text-violet-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M15 7a2 2 0 114 0c0 1.1-.9 2-2 2a2 2 0 01-2-2zM12 14c2.2 0 4-1.8 4-4H8c0 2.2 1.8 4 4 4z"/>
+                            <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z"/>
+                        </svg>
+                        <span>Minhas Chaves de Acesso</span>
+                    </h3>
+                    
+                    {% if usuario.chave_ativada %}
+                        <div class="space-y-4">
+                            <div class="bg-violet-955/40 border border-violet-500/20 rounded-2xl p-4 flex items-center justify-between">
+                                <div>
+                                    <p class="text-xs font-bold text-violet-300 uppercase tracking-wider">Chave de Homologação</p>
+                                    <p class="font-mono text-sm mt-1 text-white">HA4H4nF1tR1A0HA4</p>
+                                </div>
+                                <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs px-3 py-1 rounded-full font-bold">Ativa</span>
+                            </div>
+                            <p class="text-xs text-purple-200/50">Você já possui o acesso completo de criação desbloqueado em sua conta.</p>
+                        </div>
+                    {% else %}
+                        <div class="space-y-6">
+                            <p class="text-sm text-purple-200/70">Clique no botão "Resgatar Chave" no menu superior ou use o campo abaixo para ativar o nível de acesso 2 e liberar todas as ferramentas.</p>
+                            
+                            <form action="{{ url_for('resgate') }}" method="POST" class="space-y-4">
+                                <div>
+                                    <label for="chave_produto" class="block text-xs font-semibold text-purple-200 uppercase tracking-wider mb-2">Chave de Licença</label>
+                                    <input type="text" id="chave_produto" name="chave_produto" required placeholder="XXXX-XXXX-XXXX-XXXX" class="w-full bg-purple-950/60 border border-white/10 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/20 rounded-xl px-4 py-3.5 text-white placeholder-purple-400/50 outline-none transition text-sm font-mono">
+                                </div>
+                                <button type="submit" class="bg-violet-400 hover:bg-violet-500 text-purple-950 font-black px-6 py-3 rounded-xl text-sm transition">
+                                    Ativar Licença
+                                </button>
+                            </form>
+                        </div>
+                    {% endif %}
+                </div>
+
+            </div>
+
+            <div class="order-1 lg:order-2">
+                <div class="bg-purple-950/40 border border-white/10 rounded-3xl p-6 backdrop-blur-md shadow-lg shadow-violet-950/10">
+                    <ul class="space-y-2">
+                        <li>
+                            <button onclick="alternarAba('construcao', this)" class="btn-aba w-full text-left bg-violet-400 text-purple-950 font-bold px-4 py-3.5 rounded-xl text-sm flex items-center space-x-3 transition">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                                </svg>
+                                <span>Conteúdo</span>
+                            </button>
+                        </li>
+                        <li>
+                            <button onclick="alternarAba('editar', this)" class="btn-aba w-full text-left hover:bg-white/5 text-purple-200 hover:text-white font-bold px-4 py-3.5 rounded-xl text-sm flex items-center space-x-3 transition">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                                <span>Editar Perfil</span>
+                            </button>
+                        </li>
+                        <li>
+                            <button onclick="alternarAba('chaves', this)" class="btn-aba w-full text-left hover:bg-white/5 text-purple-200 hover:text-white font-bold px-4 py-3.5 rounded-xl text-sm flex items-center space-x-3 transition">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path d="M15 7a2 2 0 114 0c0 1.1-.9 2-2 2a2 2 0 01-2-2zM12 14c2.2 0 4-1.8 4-4H8c0 2.2 1.8 4 4 4z"/>
+                                    <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z"/>
+                                </svg>
+                                <span>Minhas Chaves</span>
+                            </button>
+                        </li>
+                        
+                        <li class="pt-2 border-t border-white/10">
+                            <a href="{{ url_for('logout') }}" class="w-full text-left hover:bg-red-955/20 text-red-400 hover:text-red-300 font-bold px-4 py-3.5 rounded-xl text-sm flex items-center space-x-3 transition block">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                </svg>
+                                <span>Sair da Conta</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Modal: Resgate de Chave -->
+    <div id="modal_resgate_global" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="w-full max-w-md bg-purple-950/60 border border-white/10 rounded-3xl p-6 sm:p-8 space-y-6 relative shadow-2xl">
+            <button onclick="fecharModalResgate()" class="absolute right-4 top-4 p-1 text-purple-400 hover:text-white transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <div class="text-center space-y-2">
+                <div class="w-12 h-12 bg-violet-500/20 border border-violet-500/30 rounded-2xl flex items-center justify-center mx-auto text-violet-400">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M15 7a2 2 0 114 0c0 1.1-.9 2-2 2a2 2 0 01-2-2zM12 14c2.2 0 4-1.8 4-4H8c0 2.2 1.8 4 4 4z"/>
+                        <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-black text-white">Resgatar Chave do Produto</h3>
+                <p class="text-xs text-purple-200/70 leading-relaxed">
+                    Insira sua chave para ativar o nível 2 de acesso e desbloquear as ferramentas de criação de fichas e campanhas.
+                </p>
+            </div>
+
+            <div class="bg-violet-400/5 border border-violet-400/10 rounded-2xl p-4 text-center">
+                <p class="text-[10px] font-bold text-violet-300 uppercase tracking-widest">Chave de Testes</p>
+                <code class="block font-mono text-xs text-violet-300 bg-black/40 px-2 py-1.5 rounded-lg mt-2 select-all">HA4H4nF1tR1A0HA4</code>
+            </div>
+
+            <form action="{{ url_for('resgate') }}" method="POST" class="space-y-4">
+                <div>
+                    <label for="chave_produto_modal" class="block text-[10px] font-bold text-purple-200 uppercase tracking-wider mb-2">Chave de Licença</label>
+                    <input type="text" id="chave_produto_modal" name="chave_produto" required placeholder="HA4H-XXXX-XXXX-XXXX" class="w-full bg-purple-950/60 border border-white/10 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/20 rounded-xl px-4 py-3 text-sm text-white placeholder-purple-400/40 outline-none transition font-mono">
+                </div>
+                <button type="submit" class="w-full bg-violet-400 hover:bg-violet-500 text-purple-950 font-black py-3.5 rounded-xl text-sm transition">
+                    ATIVAR LICENÇA
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <footer class="w-full text-center py-6 text-xs text-purple-400/60 z-10">
+        <p>&copy; 2026 Universal RPG. Todos os direitos reservados.</p>
+    </footer>
+
+    <script>
+        function alternarAba(abaId, elementoBotao) {
+            const conteudos = document.querySelectorAll('.aba-conteudo');
+            conteudos.forEach(c => c.classList.add('hidden'));
+
+            const b_chaves = document.getElementById('conteudo-' + abaId);
+            if (b_chaves) {
+                b_chaves.classList.remove('hidden');
+            }
+
+            const botoes = document.querySelectorAll('.btn-aba');
+            botoes.forEach(b => {
+                b.classList.remove('bg-violet-400', 'text-purple-950');
+                b.classList.add('hover:bg-white/5', 'text-purple-200', 'hover:text-white');
+            });
+
+            elementoBotao.classList.remove('hover:bg-white/5', 'text-purple-200', 'hover:text-white');
+            elementoBotao.classList.add('bg-violet-400', 'text-purple-950');
+        }
+
+        function previewAvatar(input) {
+            const preview = document.getElementById('avatar_preview_edit');
+            const placeholder = document.getElementById('avatar_placeholder_edit');
+            
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.classList.remove('hidden');
+                    placeholder.classList.add('hidden');
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function abrirModalResgate() {
+            document.getElementById('modal_resgate_global').classList.remove('hidden');
+        }
+
+        function fecharModalResgate() {
+            document.getElementById('modal_resgate_global').classList.add('hidden');
+        }
+    </script>
+
+</body>
+</html>

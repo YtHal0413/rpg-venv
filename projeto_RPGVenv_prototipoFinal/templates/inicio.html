@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title RPGle> - Início</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+</head>
+<body class="text-white min-h-screen flex flex-col justify-between relative overflow-x-hidden">
+
+    <div class="ondas-background">
+        <div class="onda onda-1"></div>
+        <div class="onda onda-2"></div>
+        <div class="onda onda-3"></div>
+    </div>
+
+    <header class="w-full max-w-7xl mx-auto px-4 pt-6">
+        {% include 'partials/flash.html' %}
+
+        <nav class="bg-purple-950/30 border border-white/10 rounded-2xl px-6 py-4 flex items-center justify-between backdrop-blur-md">
+            <div class="flex items-center space-x-8">
+                <a href="{{ url_for('inicio') }}" class="flex items-center space-x-2">
+                    <img class="w-8 h-8" src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo">
+                </a>
+                <div class="hidden md:flex items-center space-x-6 text-sm font-medium text-purple-200">
+                    <a href="{{ url_for('inicio') }}" class="text-white transition font-semibold">Início</a>
+                    <a href="{{ url_for('livros') }}" class="hover:text-white transition">Arquivos</a>
+                    <a href="{{ url_for('colecoes') }}" class="hover:text-white transition">Coleções</a>
+                </div>
+            </div>
+
+            {% if g.usuario %}
+            <div class="flex items-center space-x-4">
+                {% if g.usuario.chave_ativada == False %}
+                <button onclick="abrirModalResgate()" class="bg-violet-400 hover:bg-violet-500 text-purple-950 font-bold px-4 py-2 rounded-xl text-sm flex items-center space-x-2 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M15 7a2 2 0 114 0c0 1.1-.9 2-2 2a2 2 0 01-2-2zM12 14c2.2 0 4-1.8 4-4H8c0 2.2 1.8 4 4 4z"/>
+                        <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z"/>
+                    </svg>
+                    <span>Resgatar Chave</span>
+                </button>{% endif %}
+                    <a href="{{ url_for('perfil') }}" class="w-10 h-10 rounded-full border-2 border-violet-400 overflow-hidden hover:opacity-80 transition block">
+                        {% if g.usuario.imagem_avatar %}
+                            <img src="{{ g.usuario.imagem_avatar }}" alt="Avatar" class="w-full h-full object-cover">
+                        {% else %}
+                            <div class="w-full h-full bg-violet-600 flex items-center justify-center font-bold text-white">
+                                {{ g.usuario.nome[0] | upper }}
+                            </div>
+                        {% endif %}
+                    </a>
+            </div>
+            {% endif %}
+        </nav>
+    </header>
+
+    <main class="flex-grow flex items-center justify-center px-4 py-12">
+        <div class="max-w-2xl text-center space-y-8 z-10">
+            <h1 class="text-4xl sm:text-6xl font-black tracking-tight leading-tight">
+                <span class="block">Jogue qualquer RPG</span>
+                <span class="text-violet-300 block">da forma que preferir.</span>
+            </h1>
+            
+            <p class="text-lg text-purple-200/90 leading-relaxed max-w-xl mx-auto">
+                O <strong>melhor site para jogar RPG</strong> está a sua disposição! 
+                <strong>Versão para testes</strong> aberta ao público. Para ter acesso ao projeto, basta pegar uma chave!
+            </p>
+
+            <div>
+                {% if g.usuario %}
+                    <a href="{{ url_for('colecoes') }}" class="inline-block bg-violet-400 hover:bg-violet-500 text-purple-950 font-black px-8 py-4 rounded-2xl text-base sm:text-lg tracking-wide transition transform hover:scale-[1.02] shadow-lg shadow-violet-500/20">
+                        VER COLEÇÕES
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="inline-block bg-violet-400 hover:bg-violet-500 text-purple-950 font-black px-8 py-4 rounded-2xl text-base sm:text-lg tracking-wide transition transform hover:scale-[1.02] shadow-lg shadow-violet-500/20">
+                        ADQUIRA E JOGUE!
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+
+    {% if g.usuario %}
+    <!-- Modal: Resgate de Chave -->
+    <div id="modal_resgate_global" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="w-full max-w-md bg-purple-950/60 border border-white/10 rounded-3xl p-6 sm:p-8 space-y-6 relative shadow-2xl">
+            <button onclick="fecharModalResgate()" class="absolute right-4 top-4 p-1 text-purple-400 hover:text-white transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <div class="text-center space-y-2">
+                <div class="w-12 h-12 bg-violet-500/20 border border-violet-500/30 rounded-2xl flex items-center justify-center mx-auto text-violet-400">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M15 7a2 2 0 114 0c0 1.1-.9 2-2 2a2 2 0 01-2-2zM12 14c2.2 0 4-1.8 4-4H8c0 2.2 1.8 4 4 4z"/>
+                        <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-black text-white">Resgatar Chave do Produto</h3>
+                <p class="text-xs text-purple-200/70 leading-relaxed">
+                    Insira sua chave para ativar o nível 2 de acesso e desbloquear as ferramentas de criação de fichas e campanhas.
+                </p>
+            </div>
+
+            <div class="bg-violet-400/5 border border-violet-400/10 rounded-2xl p-4 text-center">
+                <p class="text-[10px] font-bold text-violet-300 uppercase tracking-widest">Chave de Testes</p>
+                <code class="block font-mono text-xs text-violet-300 bg-black/40 px-2 py-1.5 rounded-lg mt-2 select-all">HA4H4nF1tR1A0HA4</code>
+            </div>
+
+            <form action="{{ url_for('resgate') }}" method="POST" class="space-y-4">
+                <div>
+                    <label for="chave_produto_modal" class="block text-[10px] font-bold text-purple-200 uppercase tracking-wider mb-2">Chave de Licença</label>
+                    <input type="text" id="chave_produto_modal" name="chave_produto" required placeholder="HA4H-XXXX-XXXX-XXXX" class="w-full bg-purple-950/60 border border-white/10 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/20 rounded-xl px-4 py-3 text-sm text-white placeholder-purple-400/40 outline-none transition font-mono">
+                </div>
+                <button type="submit" class="w-full bg-violet-400 hover:bg-violet-500 text-purple-950 font-black py-3.5 rounded-xl text-sm transition">
+                    ATIVAR LICENÇA
+                </button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    <footer class="w-full text-center py-6 text-xs text-purple-400/60">
+        <p>&copy; 2026 Universal RPG. Todos os direitos reservados.</p>
+    </footer>
+
+    <script>
+        function abrirModalResgate() {
+            document.getElementById('modal_resgate_global').classList.remove('hidden');
+        }
+        function fecharModalResgate() {
+            document.getElementById('modal_resgate_global').classList.add('hidden');
+        }
+    </script>
+
+</body>
+</html>

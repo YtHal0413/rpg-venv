@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPGpédia - Construtor de Fichas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+</head>
+<body class="text-white min-h-screen flex flex-col relative overflow-x-hidden">
+
+    <div class="ondas-background">
+        <div class="onda onda-1"></div>
+        <div class="onda onda-2"></div>
+        <div class="onda onda-3"></div>
+    </div>
+
+    <!-- NOTIFICAÇÕES TOAST PARA ROLAGENS -->
+    <div id="painel_notificacoes" class="fixed bottom-6 right-6 z-50 flex flex-col gap-3 max-w-sm w-full"></div>
+
+    <!-- CABEÇALHO DO CRIADOR -->
+    <header class="w-full max-w-7xl mx-auto px-4 pt-6 z-30 relative">
+        <nav class="bg-purple-950/60 border border-white/10 rounded-2xl px-6 py-4 flex items-center justify-between backdrop-blur-md">
+            <div class="flex items-center space-x-4">
+                <a href="{{ url_for('colecoes') }}" class="p-2.5 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition text-purple-300 hover:text-white" title="Voltar para Coleções">
+                    <img class="w-8 h-8" src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo">
+                </a>
+                <div class="flex items-center gap-2">
+                    <button onclick="abrirDiceRoller()" class="p-2.5 bg-purple-900/60 border border-white/10 hover:bg-purple-900 rounded-xl transition shadow-lg" title="Simulador de Dados">
+                        <div class="text-[26px] ml-[2px] mb-[1px] mr-[1px] h-5 w-5 flex items-center justify-center">⚂</div>
+                    </button>
+                    <button onclick="abrirGavetaLateral('historico')" class="p-2.5 bg-purple-900/60 border border-white/10 hover:bg-purple-900 rounded-xl transition shadow-lg" title="Histórico de Rolagens">
+                        <svg class="w-5 h-5 text-purple-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                        </svg>
+                    </button>
+                    <button onclick="abrirGavetaLateral('config')" class="p-2.5 bg-purple-900/60 border border-white/10 hover:bg-purple-900 rounded-xl transition shadow-lg" title="Configurações Estruturais">
+                        <svg class="w-5 h-5 text-purple-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.43l-1.003.828c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.43l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                        </svg>
+                    </button>
+                    <button onclick="abrirModalTemplate()" class="p-2.5 bg-purple-900/60 border border-white/10 hover:bg-purple-900 rounded-xl transition shadow-lg" title="Salvar Ficha como Template">
+                        <svg class="w-5 h-5 text-purple-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
+                        </svg>
+                    </button>
+                    <button onclick="abrirModalTemplateList()" class="p-2.5 bg-purple-900/60 border border-white/10 hover:bg-purple-900 rounded-xl transition shadow-lg" title="Aplicar Template">
+                        <svg class="w-5 h-5 text-purple-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h8M8 12h8M8 17h5M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2Zm-3 10h-2m0 4h-2" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- CONTROLE DE MODOS -->
+            <div class="flex items-center space-x-3 bg-purple-950/60 p-1.5 rounded-xl border border-white/5">
+                <button onclick="definirModo('Jogo')" id="btn_modo_jogo" class="px-4 py-2 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 bg-violet-400 text-purple-950 shadow-lg shadow-violet-500/10">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
+                    </svg>
+                    <span>Modo Jogo</span>
+                </button>
+                {% if pode_editar %}
+                <button onclick="definirModo('Edição')" id="btn_modo_edicao" class="px-4 py-2 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 text-purple-300 hover:text-white">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.125 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
+                    </svg>
+                    <span>Modo Edição</span>
+                </button>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+
+    <!-- ÁREA DE CONTEÚDO PRINCIPAL DA FICHA -->
+    <main class="w-full max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-3 gap-6 z-10 relative" style="display: flex; justify-content: center;">
+        
+        <!-- COLUNA 1 -->
+        <div id="coluna_1" class="coluna-ficha w-[400px] bg-purple-950/40 border border-white/10 rounded-3xl p-6 backdrop-blur-md space-y-6 flex flex-col min-h-[500px] transition-all duration-300">
+            <!-- HEADER DA COLUNA (TABS) -->
+            <div class="flex items-center justify-between pb-3 border-b border-white/5">
+                <div id="abas_coluna_1" class="flex flex-wrap gap-1.5">
+                </div>
+                <button onclick="novaAba(1)" class="btn-edicao-visivel hidden p-1.5 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 text-violet-400 hover:text-white transition" title="Adicionar Aba">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- CONTÊINER DAS SEÇÕES DA TAB ATIVA -->
+            <div id="secoes_coluna_1" class="flex-grow space-y-6">
+                <p class="text-xs text-purple-300/30 text-center py-12 sem-conteudo-coluna">Nenhuma seção criada nesta aba ainda.</p>
+            </div>
+        </div>
+
+        <!-- COLUNA 2 -->
+        <div id="coluna_2" class="coluna-ficha w-[400px] bg-purple-950/40 border border-white/10 rounded-3xl p-6 backdrop-blur-md space-y-6 flex flex-col min-h-[500px] transition-all duration-300">
+            <div class="flex items-center justify-between pb-3 border-b border-white/5">
+                <div id="abas_coluna_2" class="flex flex-wrap gap-1.5">
+                </div>
+                <button onclick="novaAba(2)" class="btn-edicao-visivel hidden p-1.5 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 text-violet-400 hover:text-white transition" title="Adicionar Aba">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                </button>
+            </div>
+
+            <div id="secoes_coluna_2" class="flex-grow space-y-6">
+                <p class="text-xs text-purple-300/30 text-center py-12 sem-conteudo-coluna">Crie uma aba para ativar esta coluna.</p>
+            </div>
+        </div>
+
+        <!-- COLUNA 3 -->
+        <div id="coluna_3" class="coluna-ficha w-[400px] bg-purple-950/40 border border-white/10 rounded-3xl p-6 backdrop-blur-md space-y-6 flex flex-col min-h-[500px] transition-all duration-300">
+            <div class="flex items-center justify-between pb-3 border-b border-white/5">
+                <div id="abas_coluna_3" class="flex flex-wrap gap-1.5">
+                </div>
+                <button onclick="novaAba(3)" class="btn-edicao-visivel hidden p-1.5 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 text-violet-400 hover:text-white transition" title="Adicionar Aba">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                </button>
+            </div>
+
+            <div id="secoes_coluna_3" class="flex-grow space-y-6">
+                <p class="text-xs text-purple-300/30 text-center py-12 sem-conteudo-coluna">Crie uma aba para ativar esta coluna.</p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- PAINEL LATERAL: CONFIGURAÇÕES -->
+    <div id="gaveta_config" class="fixed top-0 left-0 h-full w-80 bg-purple-950/95 border-r border-white/10 z-50 transform -translate-x-full transition-transform duration-300 backdrop-blur-lg flex flex-col justify-between p-6">
+        <div class="space-y-6">
+            <div class="flex items-center justify-between pb-3 border-b border-white/10">
+                <h3 class="text-lg font-black flex items-center space-x-2 text-white">
+                    <svg class="w-5 h-5 text-violet-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.43l-1.003.828c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.43l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                    </svg>
+                    <span>Configurações</span>
+                </h3>
+                <button onclick="fecharGavetaLateral('config')" class="text-purple-400 hover:text-white transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <div id="lista_estruturas_colunas" class="p-4 bg-purple-950/60 border border-white/5 rounded-2xl space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-white">Visibilidade da ficha</span>
+                    <span id="status-visibilidade" class="text-[10px] text-purple-300 uppercase tracking-widest">{{ 'Mestres' if ficha.visibilidade == 'mestres' else 'Todos' }}</span>
+                </div>
+                <div class="space-y-2 text-sm text-purple-200">
+                    <label class="flex items-center justify-between rounded-xl border border-white/10 px-3 py-2 {% if not pode_editar %}opacity-60{% endif %}">
+                        <span>Para todos</span>
+                        <input type="radio" name="visibilidade_ficha" value="todos" onchange="definirVisibilidade('todos')" {% if ficha.visibilidade != 'mestres' %}checked{% endif %} {% if not pode_editar %}disabled{% endif %}>
+                    </label>
+                    <label class="flex items-center justify-between rounded-xl border border-white/10 px-3 py-2 {% if not pode_editar %}opacity-60{% endif %}">
+                        <span>Apenas para mestres</span>
+                        <input type="radio" name="visibilidade_ficha" value="mestres" onchange="definirVisibilidade('mestres')" {% if ficha.visibilidade == 'mestres' %}checked{% endif %} {% if not pode_editar %}disabled{% endif %}>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <button onclick="limparFichaCompleta()" class="w-full bg-red-600/20 border border-red-500/30 hover:bg-red-600 hover:text-white text-red-300 font-bold py-3.5 rounded-xl text-xs tracking-wider transition">
+                LIMPAR FICHA
+            </button>
+        </div>
+    </div>
+
+    <!-- PAINEL LATERAL: HISTÓRICO DE ROLAGENS -->
+    <div id="gaveta_historico" class="fixed top-0 left-0 h-full w-80 bg-purple-950/95 border-r border-white/10 z-50 transform -translate-x-full transition-transform duration-300 backdrop-blur-lg flex flex-col p-6 space-y-6">
+        <div class="flex items-center justify-between pb-3 border-b border-white/10">
+            <h3 class="text-lg font-black flex items-center space-x-2 text-white">
+                <svg class="w-5 h-5 text-violet-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                </svg>
+                <span>Histórico de Rolagens</span>
+            </h3>
+            <button onclick="fecharGavetaLateral('historico')" class="text-purple-400 hover:text-white transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <div id="lista_historico_rolagens" class="flex-grow overflow-y-auto leitor-scroll pr-1 space-y-3">
+            <p class="text-xs text-purple-300/40 text-center py-12">Nenhuma rolagem realizada na sessão ativa.</p>
+        </div>
+    </div>
+
+    <!-- MODAL DO SIMULADOR DE DADOS (DICE ROLLER) -->
+    <div id="modal_dice_roller" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="w-full max-w-xl bg-purple-950/90 border border-white/10 rounded-3xl p-6 sm:p-8 space-y-6 relative shadow-2xl">
+            <button onclick="fecharDiceRoller()" class="absolute right-4 top-4 p-1 text-purple-400 hover:text-white transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                </svg>
+            </button>
+
+            <div class="text-center space-y-1">
+                <h3 class="text-2xl font-black text-white">Bandeja de Dados</h3>
+                <p class="text-xs text-purple-200/70">Selecione, empilhe dados e configure as regras de rolagem</p>
+            </div>
+
+            <!-- SELETOR DE DADOS -->
+            <div class="grid grid-cols-4 sm:grid-cols-7 gap-3">
+                <div class="relative bg-[rgba(39,18,69,0.75)] border border-white/5 rounded-2xl p-2.5 text-center cursor-pointer hover:border-violet-400 transition" onclick="adicionarDadoPilha('d4')">
+                    <span id="badge_d4" class="absolute -top-1.5 -right-1.5 bg-violet-400 text-purple-950 text-[9px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
+                    <div class="text-2xl">⯅</div>
+                    <span class="text-[10px] font-bold font-mono text-purple-400 mt-1 block">d4</span>
+                </div>
+                <div class="relative bg-[rgba(39,18,69,0.75)] border border-white/5 rounded-2xl p-2.5 text-center cursor-pointer hover:border-violet-400 transition" onclick="adicionarDadoPilha('d6')">
+                    <span id="badge_d6" class="absolute -top-1.5 -right-1.5 bg-violet-400 text-purple-950 text-[9px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
+                    <div class="text-2xl">⯀</div>
+                    <span class="text-[10px] font-bold font-mono text-purple-400 mt-1 block">d6</span>
+                </div>
+                <div class="relative bg-[rgba(39,18,69,0.75)] border border-white/5 rounded-2xl p-2.5 text-center cursor-pointer hover:border-violet-400 transition" onclick="adicionarDadoPilha('d8')">
+                    <span id="badge_d8" class="absolute -top-1.5 -right-1.5 bg-violet-400 text-purple-950 text-[9px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
+                    <div class="text-2xl">⯁</div>
+                    <span class="text-[10px] font-bold font-mono text-purple-400 mt-1 block">d8</span>
+                </div>
+                <div class="relative bg-[rgba(39,18,69,0.75)] border border-white/5 rounded-2xl p-2.5 text-center cursor-pointer hover:border-violet-400 transition" onclick="adicionarDadoPilha('d10')">
+                    <span id="badge_d10" class="absolute -top-1.5 -right-1.5 bg-violet-400 text-purple-950 text-[9px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
+                    <div class="text-2xl">⯃</div>
+                    <span class="text-[10px] font-bold font-mono text-purple-400 mt-1 block">d10</span>
+                </div>
+                <div class="relative bg-[rgba(39,18,69,0.75)] border border-white/5 rounded-2xl p-2.5 text-center cursor-pointer hover:border-violet-400 transition" onclick="adicionarDadoPilha('d12')">
+                    <span id="badge_d12" class="absolute -top-1.5 -right-1.5 bg-violet-400 text-purple-950 text-[9px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
+                    <div class="text-2xl">⯂</div>
+                    <span class="text-[10px] font-bold font-mono text-purple-400 mt-1 block">d12</span>
+                </div>
+                <div class="relative bg-[rgba(39,18,69,0.75)] border border-white/5 rounded-2xl p-2.5 text-center cursor-pointer hover:border-violet-400 transition" onclick="adicionarDadoPilha('d20')">
+                    <span id="badge_d20" class="absolute -top-1.5 -right-1.5 bg-violet-400 text-purple-950 text-[9px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
+                    <div class="text-2xl">⬢</div>
+                    <span class="text-[10px] font-bold font-mono text-purple-400 mt-1 block">d20</span>
+                </div>
+                <div class="relative bg-[rgba(39,18,69,0.75)] border border-white/5 rounded-2xl p-2.5 text-center cursor-pointer hover:border-violet-400 transition" onclick="adicionarDadoPilha('d100')">
+                    <span id="badge_d100" class="absolute -top-1.5 -right-1.5 bg-violet-400 text-purple-950 text-[9px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
+                    <div class="text-2xl">⯄</div>
+                    <span class="text-[10px] font-bold font-mono text-purple-400 mt-1 block">d100</span>
+                </div>
+            </div>
+
+            <!-- FÓRMULA DE ROLAGEM -->
+            <div class="space-y-2 bg-purple-800/45 border border-white/5 rounded-2xl p-4">
+                <label class="block text-[10px] font-bold text-purple-300 uppercase tracking-wider">Fórmula de Rolagem</label>
+                <div class="flex items-center space-x-2">
+                    <input type="text" id="input_formula_rolagem" class="flex-1 bg-[rgba(39,18,69,0.75)] border border-white/10 rounded-xl px-4 py-3 text-xs text-purple-300 font-mono text-left placeholder-purple-400/50 focus:border-violet-400 outline-none transition" placeholder="Ex: +5+2+3" oninput="aplicarFormulaRolagem()" onchange="aplicarFormulaRolagem()">
+                    <button onclick="removerUltimoDadoPilha()" class="p-3 h-[42px] bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 text-purple-300 transition flex items-center" title="Voltar">⌫</button>
+                    <button onclick="limparPilhaDados()" class="p-3 bg-red-600/40 border border-red-500/60 rounded-xl hover:bg-red-600 text-red-300 hover:text-white transition" title="Limpar Tudo"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"></path>
+                    </svg></button>
+                </div>
+                <!-- Campo oculto para armazenar o modificador -->
+                <input type="hidden" id="bonus_dados" value="0">
+            </div>
+
+            <!-- SISTEMA OPERACIONAL (TIPOS DE ROLAGEM) -->
+            <div class="space-y-3">
+                <label class="block text-[10px] font-bold text-purple-300 uppercase tracking-wider">Tipo de Rolagem</label>
+                <div class="grid grid-cols-3 gap-2">
+                    <label class="flex items-center justify-center p-3 border border-white/5 rounded-xl bg-[rgba(39,18,69,0.75)] cursor-pointer text-xs font-bold transition hover:border-violet-400/30">
+                        <input type="radio" name="tipo_operacao_dados" value="Somatório" checked onchange="ajustarCamposOperacao()" class="mr-2 text-violet-400 focus:ring-0 focus:ring-offset-0 bg-transparent border-white/10">
+                        <span>Somatório</span>
+                    </label>
+                    <label class="flex items-center justify-center p-3 border border-white/5 rounded-xl bg-[rgba(39,18,69,0.75)] cursor-pointer text-xs font-bold transition hover:border-violet-400/30">
+                        <input type="radio" name="tipo_operacao_dados" value="Rolar_Manter" onchange="ajustarCamposOperacao()" class="mr-2 text-violet-400 focus:ring-0 focus:ring-offset-0 bg-transparent border-white/10">
+                        <span>Rolar & Manter</span>
+                    </label>
+                    <label class="flex items-center justify-center p-3 border border-white/5 rounded-xl bg-[rgba(39,18,69,0.75)] cursor-pointer text-xs font-bold transition hover:border-violet-400/30">
+                        <input type="radio" name="tipo_operacao_dados" value="Sucessos" onchange="ajustarCamposOperacao()" class="mr-2 text-violet-400 focus:ring-0 focus:ring-offset-0 bg-transparent border-white/10">
+                        <span>Sucessos</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- SUB-OPÇÕES DINÂMICAS -->
+            <div id="painel_sub_opcoes" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 border border-white/5 bg-[rgba(39,18,69,0.75)] rounded-2xl">
+                <div id="sub_rolar_manter" class="hidden space-y-2">
+                    <span class="block text-[10px] font-bold text-purple-300 uppercase tracking-wider">Filtrar Dado</span>
+                    <div class="flex space-x-4">
+                        <label class="flex items-center text-xs cursor-pointer text-purple-200">
+                            <input type="radio" name="manter_opcao" value="Maior" checked class="mr-2 text-violet-400 bg-transparent border-white/10">
+                            <span>Maior Dado</span>
+                        </label>
+                        <label class="flex items-center text-xs cursor-pointer text-purple-200">
+                            <input type="radio" name="manter_opcao" value="Menor" class="mr-2 text-violet-400 bg-transparent border-white/10">
+                            <span>Menor Dado</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PARÂMETROS ADICIONAIS -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="bg-[rgba(39,18,69,0.75)] border border-white/5 rounded-2xl p-4 space-y-3">
+                    <label class="flex items-center text-xs font-bold text-purple-300 cursor-pointer">
+                        <input type="checkbox" id="chk_definir_sucesso" onchange="alternarCamposSucesso()" class="mr-2 rounded text-violet-400 focus:ring-0 focus:ring-offset-0 bg-transparent border-white/10">
+                        <span>Definir Sucesso</span>
+                    </label>
+                    <div id="painel_definir_sucesso_campos" class="hidden grid grid-cols-2 gap-2 pt-1">
+                        <input type="number" id="valor_sucesso_minimo" value="0" placeholder="Sucesso Mín." class="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none w-full bg-purple-950/60 border border-white/10 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-violet-400 transition">
+                        <select id="condicao_sucesso" class="w-full bg-purple-950 border border-white/10 rounded-xl px-2 py-2 text-xs text-purple-200 outline-none focus:border-violet-400 transition">
+                            <option value=">=">&gt;=</option>
+                            <option value="=">=</option>
+                            <option value="<=">&lt;=</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="bg-[rgba(39,18,69,0.75)] border border-white/5 rounded-2xl p-4 flex flex-col justify-center">
+                    <label class="flex items-center text-xs font-bold text-purple-300 cursor-pointer">
+                        <input type="checkbox" id="chk_explosao_dados" class="mr-2 rounded text-violet-400 focus:ring-0 focus:ring-offset-0 bg-transparent border-white/10">
+                        <span>Explosão de Dados</span>
+                    </label>
+                    <p class="text-[10px] text-purple-400/50 mt-1.5 leading-relaxed">Rola novamente o dado que atingir o valor máximo (ex: obter 6 em um d6).</p>
+                </div>
+            </div>
+
+            <button onclick="rolarPilhaDadosAtiva()" class="w-full bg-violet-400 hover:bg-violet-500 text-purple-950 font-black py-4 rounded-2xl text-base tracking-wide transition shadow-lg shadow-violet-500/20">
+                ROLAR DADOS
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL DE CADASTRO DE NOVA SEÇÃO -->
+    <div id="modal_nova_secao" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="w-full max-w-md bg-purple-950/90 border border-white/10 rounded-3xl p-6 sm:p-8 space-y-6 relative shadow-2xl">
+            <button onclick="fecharModalNovaSecao()" class="absolute right-4 top-4 p-1 text-purple-400 hover:text-white transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                </svg>
+            </button>
+
+            <div class="text-center space-y-1">
+                <h3 class="text-2xl font-black text-white">Nova Seção</h3>
+                <p class="text-xs text-purple-200/70">Defina o tipo homogêneo de componentes da seção</p>
+            </div>
+
+            <div class="space-y-4">
+                <div class="space-y-2">
+                    <label for="titulo_secao_novo" class="block text-xs font-bold text-purple-200 uppercase tracking-wider">Título da Seção</label>
+                    <input type="text" id="titulo_secao_novo" placeholder="Ex: Características, Inventário, Perícias..." class="w-full bg-purple-950/60 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-purple-400/40 outline-none focus:border-violet-400 transition text-sm">
+                </div>
+
+                <div class="space-y-2">
+                    <label for="tipo_componente_secao" class="block text-xs font-bold text-purple-200 uppercase tracking-wider">Tipo de Elemento</label>
+                    <select id="tipo_componente_secao" class="w-full bg-purple-950 border border-white/10 rounded-xl px-4 py-3 text-sm text-purple-200 focus:border-violet-400 outline-none transition">
+                        <option value="AtributoSimples">Atributo Simples</option>
+                        <option value="AtributoDuplo">Atributo Duplo</option>
+                        <option value="AtributoComplexo">Atributo Complexo</option>
+                        <option value="Contador">Contador</option>
+                        <option value="Checkbox">Checkbox</option>
+                        <option value="InformacaoCurta">Texto Curto</option>
+                        <option value="AnotacaoSimples">Anotação Simples</option>
+                        <option value="AnotacaoCheckbox">Anotação Marcável</option>
+                        <option value="AnotacaoDetalhada">Anotação Detalhada</option>
+                    </select>
+                </div>
+
+                <button onclick="salvarNovaSecao()" class="w-full bg-violet-400 hover:bg-violet-500 text-purple-950 font-black py-3.5 rounded-xl text-sm transition">
+                    CRIAR SEÇÃO
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PARA CRIAR TEMPLATE -->
+    <div id="modal_template" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="w-full max-w-md bg-purple-950/90 border border-white/10 rounded-3xl p-6 sm:p-8 space-y-6 relative shadow-2xl">
+            <button onclick="fecharModalTemplate()" class="absolute right-4 top-4 p-1 text-purple-400 hover:text-white transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <div class="space-y-2">
+                <h3 class="text-xl font-black text-white">Salvar como Template</h3>
+                <p class="text-xs text-purple-200/70">Defina um nome para reutilizar esta ficha futuramente.</p>
+            </div>
+            <div class="space-y-4">
+                <input type="text" id="nome_template_input" placeholder="Ex.: Guerreiro Arcano" class="w-full bg-purple-950/60 border border-white/10 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/20 rounded-xl px-4 py-3 text-sm text-white placeholder-purple-400/40 outline-none transition">
+                <button onclick="salvarComoTemplate()" class="w-full bg-violet-400 hover:bg-violet-500 text-purple-950 font-black py-3.5 rounded-xl text-sm transition">
+                    SALVAR TEMPLATE
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PARA APLICAR TEMPLATE -->
+    <div id="modal_template_list" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="w-full max-w-2xl bg-purple-950/90 border border-white/10 rounded-3xl p-6 sm:p-8 space-y-6 relative shadow-2xl">
+            <button onclick="fecharModalTemplateList()" class="absolute right-4 top-4 p-1 text-purple-400 hover:text-white transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <div class="space-y-2">
+                <h3 class="text-xl font-black text-white">Aplicar Template</h3>
+                <p class="text-xs text-purple-200/70">Carregue um template salvo para substituir a estrutura atual da ficha.</p>
+            </div>
+            <div id="lista_templates_disponiveis" class="space-y-4 max-h-[50vh] overflow-y-auto pr-2">
+                <p class="text-sm text-purple-300">Carregando templates...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Resgate de Chave -->
+    <div id="modal_resgate_global" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="w-full max-w-md bg-purple-950/60 border border-white/10 rounded-3xl p-6 sm:p-8 space-y-6 relative shadow-2xl">
+            <button onclick="fecharModalResgate()" class="absolute right-4 top-4 p-1 text-purple-400 hover:text-white transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <div class="text-center space-y-2">
+                <div class="w-12 h-12 bg-violet-500/20 border border-violet-500/30 rounded-2xl flex items-center justify-center mx-auto text-violet-400">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M15 7a2 2 0 114 0c0 1.1-.9 2-2 2a2 2 0 01-2-2zM12 14c2.2 0 4-1.8 4-4H8c0 2.2 1.8 4 4 4z"/>
+                        <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-black text-white">Resgatar Chave do Produto</h3>
+                <p class="text-xs text-purple-200/70 leading-relaxed">
+                    Insira sua chave para ativar o nível 2 de acesso e desbloquear as ferramentas de criação de fichas e campanhas.
+                </p>
+            </div>
+
+            <div class="bg-violet-400/5 border border-violet-400/10 rounded-2xl p-4 text-center">
+                <p class="text-[10px] font-bold text-violet-300 uppercase tracking-widest">Chave de Testes</p>
+                <code class="block font-mono text-xs text-violet-300 bg-black/40 px-2 py-1.5 rounded-lg mt-2 select-all">HA4H4nF1tR1A0HA4</code>
+            </div>
+
+            <form action="{{ url_for('resgate') }}" method="POST" class="space-y-4">
+                <div>
+                    <label for="chave_produto_modal" class="block text-[10px] font-bold text-purple-200 uppercase tracking-wider mb-2">Chave de Licença</label>
+                    <input type="text" id="chave_produto_modal" name="chave_produto" required placeholder="HA4H-XXXX-XXXX-XXXX" class="w-full bg-purple-950/60 border border-white/10 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/20 rounded-xl px-4 py-3 text-sm text-white placeholder-purple-400/40 outline-none transition font-mono">
+                </div>
+                <button type="submit" class="w-full bg-violet-400 hover:bg-violet-500 text-purple-950 font-black py-3.5 rounded-xl text-sm transition">
+                    ATIVAR LICENÇA
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAIS PERSONALIZADOS -->
+    <!-- ========================================== -->
+
+    <!-- MODAL DE CONFIRMAÇÃO PERSONALIZADO -->
+    <div id="modal_confirmacao" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
+        <div class="w-full max-w-md bg-purple-950/90 border border-white/10 rounded-3xl p-6 sm:p-8 space-y-6 relative shadow-2xl">
+            <div class="text-center space-y-2">
+                <div class="w-14 h-14 rounded-full bg-yellow-500/20 border border-yellow-500/30 flex items-center justify-center mx-auto">
+                    <svg class="w-7 h-7 text-yellow-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                    </svg>
+                </div>
+                <h3 id="confirmacao_titulo" class="text-xl font-black text-white">Tem certeza?</h3>
+                <p id="confirmacao_mensagem" class="text-sm text-purple-200/70 leading-relaxed">Esta ação não pode ser desfeita.</p>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="fecharModalConfirmacao(false)" class="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold py-3 rounded-xl text-sm transition">
+                    Cancelar
+                </button>
+                <button id="confirmacao_btn_confirmar" onclick="fecharModalConfirmacao(true)" class="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-xl text-sm transition">
+                    Confirmar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE PROMPT PERSONALIZADO -->
+    <div id="modal_prompt" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
+        <div class="w-full max-w-md bg-purple-950/90 border border-white/10 rounded-3xl p-6 sm:p-8 space-y-6 relative shadow-2xl">
+            <div class="text-center space-y-2">
+                <div class="w-14 h-14 rounded-full bg-violet-500/20 border border-violet-500/30 flex items-center justify-center mx-auto">
+                    <svg class="w-7 h-7 text-violet-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                    </svg>
+                </div>
+                <h3 id="prompt_titulo" class="text-xl font-black text-white">Digite o nome</h3>
+                <p id="prompt_mensagem" class="text-sm text-purple-200/70 leading-relaxed">Informe o título para continuar.</p>
+            </div>
+            <div class="space-y-4">
+                <input type="text" id="prompt_input" placeholder="Digite aqui..." class="w-full bg-purple-950/60 border border-white/10 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/20 rounded-xl px-4 py-3 text-sm text-white placeholder-purple-400/40 outline-none transition">
+                <div class="flex gap-3">
+                    <button onclick="fecharModalPrompt(null)" class="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold py-3 rounded-xl text-sm transition">
+                        Cancelar
+                    </button>
+                    <button onclick="fecharModalPrompt(document.getElementById('prompt_input').value)" class="flex-1 bg-violet-400 hover:bg-violet-500 text-purple-950 font-black py-3 rounded-xl text-sm transition">
+                        Confirmar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const fichaID = {{ ficha.id }};
+        const podeEditar = {{ pode_editar|tojson }};
+        const modoInicial = {{ modo_inicial|tojson }};
+        const visibilidadeInicial = {{ ficha.visibilidade|tojson }};
+    </script>
+    <script src="{{ url_for('static', filename='js/criador-core.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/criador-render.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/criador-actions.js') }}"></script>
+    
+    <!-- Script adicional para inicializar o avatar e os modais -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verifica se o avatar existe no estado da ficha
+            const avatarImg = document.getElementById('avatar_imagem');
+            const avatarPlaceholder = document.getElementById('avatar_placeholder');
+            
+            // Se a ficha tem avatar, mostra a imagem
+            if (estadoFicha && estadoFicha.avatar) {
+                avatarImg.src = estadoFicha.avatar;
+                avatarImg.classList.remove('hidden');
+                if (avatarPlaceholder) avatarPlaceholder.classList.add('hidden');
+            } else {
+                avatarImg.classList.add('hidden');
+                if (avatarPlaceholder) avatarPlaceholder.classList.remove('hidden');
+            }
+        });
+
+        // ==========================================
+        // MODAL DE CONFIRMAÇÃO PERSONALIZADO
+        // ==========================================
+        let confirmacaoResolve = null;
+
+        function abrirModalConfirmacao(titulo, mensagem) {
+            return new Promise((resolve) => {
+                confirmacaoResolve = resolve;
+                document.getElementById('confirmacao_titulo').textContent = titulo || 'Tem certeza?';
+                document.getElementById('confirmacao_mensagem').textContent = mensagem || 'Esta ação não pode ser desfeita.';
+                document.getElementById('modal_confirmacao').classList.remove('hidden');
+            });
+        }
+
+        function fecharModalConfirmacao(resultado) {
+            document.getElementById('modal_confirmacao').classList.add('hidden');
+            if (confirmacaoResolve) {
+                confirmacaoResolve(resultado);
+                confirmacaoResolve = null;
+            }
+        }
+
+        // ==========================================
+        // MODAL DE PROMPT PERSONALIZADO
+        // ==========================================
+        let promptResolve = null;
+
+        function abrirModalPrompt(titulo, mensagem, valorPadrao = '') {
+            return new Promise((resolve) => {
+                promptResolve = resolve;
+                document.getElementById('prompt_titulo').textContent = titulo || 'Digite o nome';
+                document.getElementById('prompt_mensagem').textContent = mensagem || 'Informe o título para continuar.';
+                const input = document.getElementById('prompt_input');
+                input.value = valorPadrao || '';
+                input.focus();
+                document.getElementById('modal_prompt').classList.remove('hidden');
+                
+                // Enter para confirmar
+                input.onkeydown = (e) => {
+                    if (e.key === 'Enter') {
+                        fecharModalPrompt(input.value);
+                    }
+                };
+            });
+        }
+
+        function fecharModalPrompt(valor) {
+            document.getElementById('modal_prompt').classList.add('hidden');
+            if (promptResolve) {
+                promptResolve(valor);
+                promptResolve = null;
+            }
+        }
+
+        // Função para remover a foto (sobrescreve a do criador.js)
+        async function removerFoto() {
+            const confirmado = await abrirModalConfirmacao(
+                'Remover Avatar',
+                'Tem certeza que deseja remover a foto de perfil?'
+            );
+            
+            if (!confirmado) return;
+            
+            const avatarImg = document.getElementById('avatar_imagem');
+            const avatarPlaceholder = document.getElementById('avatar_placeholder');
+            
+            if (avatarImg) {
+                avatarImg.classList.add('hidden');
+                avatarImg.src = '';
+            }
+            if (avatarPlaceholder) {
+                avatarPlaceholder.classList.remove('hidden');
+            }
+            
+            if (estadoFicha) {
+                estadoFicha.avatar = null;
+                agendarSalvamento();
+            }
+            
+            mostrarToastNotificacao("Avatar removido", "A imagem de perfil foi removida.", "alerta");
+        }
+    </script>
+</body>
+</html>

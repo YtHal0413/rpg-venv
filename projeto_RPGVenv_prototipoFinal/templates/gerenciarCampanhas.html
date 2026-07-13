@@ -1,0 +1,260 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal RPG - Gerenciar Campanhas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+</head>
+<body class="text-white min-h-screen flex flex-col justify-between relative overflow-x-hidden">
+
+    <div class="ondas-background">
+        <div class="onda onda-1"></div>
+        <div class="onda onda-2"></div>
+        <div class="onda onda-3"></div>
+    </div>
+
+    <!-- Cabeçalho -->
+    <header class="w-full max-w-7xl mx-auto px-4 pt-6 z-30 relative">
+        <nav class="bg-purple-950/60 border border-white/10 rounded-2xl px-6 py-4 flex items-center justify-between backdrop-blur-md shadow-lg shadow-violet-950/20">
+            <div class="flex items-center space-x-8">
+                <a href="{{ url_for('inicio') }}" class="flex items-center space-x-2">
+                    <img class="w-8 h-8" src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo">
+                </a>
+                <div class="hidden md:flex items-center space-x-6 text-sm font-medium text-purple-200">
+                    <a href="{{ url_for('inicio') }}" class="hover:text-white transition">Início</a>
+                    <a href="{{ url_for('livros') }}" class="hover:text-white transition">Arquivos</a>
+                    <a href="{{ url_for('colecoes') }}" class="hover:text-white transition">Coleções</a>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                {% if usuario.chave_ativada == False %}
+                <button onclick="abrirModalResgate()" class="bg-violet-400 hover:bg-violet-500 text-purple-950 font-bold px-4 py-2 rounded-xl text-sm flex items-center space-x-2 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M15 7a2 2 0 114 0c0 1.1-.9 2-2 2a2 2 0 01-2-2zM12 14c2.2 0 4-1.8 4-4H8c0 2.2 1.8 4 4 4z"/>
+                        <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z"/>
+                    </svg>
+                    <span>Resgatar Chave</span>
+                </button>
+                {% endif %}
+                <a href="{{ url_for('perfil') }}" class="w-10 h-10 rounded-full border-2 border-violet-400 overflow-hidden hover:opacity-80 transition block">
+                    {% if usuario.imagem_avatar %}
+                        <img src="{{ usuario.imagem_avatar }}" alt="Avatar" class="w-full h-full object-cover">
+                    {% else %}
+                        <div class="w-full h-full bg-violet-600 flex items-center justify-center font-bold text-white">
+                            {{ usuario.nome[0] | upper }}
+                        </div>
+                    {% endif %}
+                </a>
+            </div>
+        </nav>
+        
+        <!-- Flash Messages -->
+        {% include 'partials/flash.html' %}
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main class="flex-grow w-full max-w-7xl mx-auto px-4 py-8 z-10">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Coluna Esquerda: Lista de Campanhas -->
+            <div class="bg-gradient-to-r from-purple-900/40 to-violet-800/20 backdrop-blur-md overflow-hidden lg:col-span-2 border border-white/10 rounded-3xl p-6">
+                <div class="flex items-center justify-between pb-4 border-b border-white/5 mb-6">
+                    <h2 class="text-xl font-black tracking-tight flex items-center space-x-2 text-white">
+                        <svg class="w-6 h-6 text-violet-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                        </svg>
+                        <span>Minhas Campanhas</span>
+                    </h2>
+                    <div class="flex items-center space-x-3">
+                        <span class="text-xs font-bold text-purple-300 bg-purple-950/30 px-3 py-1 rounded-full border border-white/10">
+                            {{ campanhas|length }} campanhas
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Grid de Campanhas -->
+                <div class="grid grid-cols-1 gap-4 max-h-[500px] overflow-y-auto pr-2 leitor-scroll">
+                    {% if campanhas %}
+                        {% for campanha in campanhas %}
+                            <a href="{{ url_for('campanha_detalhes', id_campanha=campanha.id) }}" class="flex items-center justify-between p-4 rounded-2xl bg-[rgba(30,10,50,0.6)] border border-white/5 hover:border-violet-400/40 transition-all duration-300 hover:bg-violet-955/20 hover:shadow-lg hover:shadow-violet-500/5">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-3 overflow-hidden flex-1">
+                                        <div class="w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-violet-400 flex-shrink-0">
+                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                                            </svg>
+                                        </div>
+                                        <div class="overflow-hidden flex-1">
+                                            <h4 class="font-bold text-white truncate">{{ campanha.nome }}</h4>
+                                            <div class="flex items-center space-x-3 text-[10px] text-purple-400/60">
+                                                <span class="font-mono">ID: #{{ campanha.id }}</span>
+                                                <span>•</span>
+                                                <span>
+                                                    {% if campanha.id_mestre == g.usuario.id %}
+                                                        <span class="text-violet-400 font-bold">Mestre</span>
+                                                    {% else %}
+                                                        Jogador
+                                                    {% endif %}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    
+                                </div>
+                                <!-- Ações da Campanha -->
+                                    <div class="flex items-center space-x-2 flex-shrink-0">
+                                        
+                                        <!-- Botão Sair (apenas para jogadores) -->
+                                        {% if campanha.id_mestre != g.usuario.id %}
+                                            <form action="{{ url_for('sair_campanha', id_campanha=campanha.id) }}" method="POST" class="inline" onsubmit="return confirm('Tem certeza que deseja sair desta campanha?')">
+                                                <button type="submit" class="p-2 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 rounded-lg transition" title="Sair da campanha">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
+                                                    </svg>
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                        
+                                        <!-- Botão Excluir (apenas para mestres) -->
+                                        {% if campanha.id_mestre == g.usuario.id %}
+                                            <form action="{{ url_for('excluir_campanha', id_campanha=campanha.id) }}" method="POST" class="inline" onsubmit="return confirm('Tem certeza que deseja EXCLUIR esta campanha permanentemente? Esta ação não pode ser desfeita!')">
+                                                <button type="submit" class="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg transition" title="Excluir campanha">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                                    </svg>
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                    </div>
+                            </a>
+                        {% endfor %}
+                    {% else %}
+                        <div class="col-span-full py-12 text-center bg-purple-950/60 rounded-2xl border border-dashed border-purple-400/40">
+                            <svg class="w-16 h-16 text-purple-400/30 mx-auto mb-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                            </svg>
+                            <p class="text-sm text-purple-300/70">Nenhuma campanha criada ainda.</p>
+                            <p class="mt-2 text-xs text-purple-400/50">Clique no botão "CRIAR CAMPANHA" para começar sua aventura.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Coluna Direita: Informações e Ações Rápidas -->
+            <div class="bg-purple-950/40 border border-white/10 rounded-3xl p-6 backdrop-blur-md flex flex-col justify-between">
+                <div class="space-y-6">
+                    <div class="pb-4 border-b border-purple-400/60">
+                        <h2 class="text-xl font-black tracking-tight flex items-center space-x-2 text-white">
+                            <svg class="w-6 h-6 text-violet-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" />
+                            </svg>
+                            <span>Gerenciar Campanhas</span>
+                        </h2>
+                        <p class="text-xs text-purple-300/50 mt-1">Gerencie suas campanhas ativas e históricas.</p>
+                    </div>
+
+                    <!-- Dicas de Gerenciamento -->
+                    <div class="bg-purple-950/30 border border-white/5 rounded-2xl p-4 space-y-3">
+                        <h4 class="text-xs font-bold text-violet-300 uppercase tracking-wider">Dicas</h4>
+                        <ul class="space-y-2 text-xs text-purple-300/60">
+                            <li class="flex items-start space-x-2">
+                                <span class="text-violet-400 mt-0.5">•</span>
+                                <span>Para <strong>Visualizar</strong>, Clique no item da campanha para ver detalhes</span>
+                            </li>
+                            <li class="flex items-start space-x-2">
+                                <span class="text-yellow-400 mt-0.5">•</span>
+                                <span>O botão <strong>Sair</strong> permite que jogadores saiam de uma campanha</span>
+                            </li>
+                            <li class="flex items-start space-x-2">
+                                <span class="text-red-400 mt-0.5">•</span>
+                                <span>O botão <strong>Excluir</strong> (Apenas para Mestres), excluir permanentemente uma campanha</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Ações Rápidas -->
+                    <div class="bg-purple-950/30 border border-white/5 rounded-2xl p-4 space-y-3">
+                        <h4 class="text-xs font-bold text-violet-300 uppercase tracking-wider">Ações Rápidas</h4>
+                        <a href="{{ url_for('criar_campanha') }}" class="w-full bg-violet-400 hover:bg-violet-500 text-purple-950 font-black py-2.5 rounded-xl text-xs transition flex items-center justify-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                            </svg>
+                            <span>CRIAR CAMPANHA</span>
+                        </a>
+                        <a href="#" onclick="history.back(); return false;" class="w-full bg-white/5 border border-white/10 hover:bg-white/10 text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                            </svg>
+                            <span>VOLTAR</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Rodapé da Coluna -->
+                <div class="pt-4 border-t border-purple-400/60 mt-6 text-center text-[10px] text-purple-400/40">
+                    <p>Campanhas são salvas automaticamente.</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Modal: Resgate de Chave -->
+    <div id="modal_resgate_global" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="w-full max-w-md bg-purple-950/60 border border-white/10 rounded-3xl p-6 sm:p-8 space-y-6 relative shadow-2xl">
+            <button onclick="fecharModalResgate()" class="absolute right-4 top-4 p-1 text-purple-400 hover:text-white transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <div class="text-center space-y-2">
+                <div class="w-12 h-12 bg-violet-500/20 border border-violet-500/30 rounded-2xl flex items-center justify-center mx-auto text-violet-400">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M15 7a2 2 0 114 0c0 1.1-.9 2-2 2a2 2 0 01-2-2zM12 14c2.2 0 4-1.8 4-4H8c0 2.2 1.8 4 4 4z"/>
+                        <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-black text-white">Resgatar Chave do Produto</h3>
+                <p class="text-xs text-purple-200/70 leading-relaxed">
+                    Insira sua chave para ativar o nível 2 de acesso e desbloquear as ferramentas de criação de fichas e campanhas.
+                </p>
+            </div>
+
+            <div class="bg-violet-400/5 border border-violet-400/10 rounded-2xl p-4 text-center">
+                <p class="text-[10px] font-bold text-violet-300 uppercase tracking-widest">Chave de Testes</p>
+                <code class="block font-mono text-xs text-violet-300 bg-black/40 px-2 py-1.5 rounded-lg mt-2 select-all">HA4H4nF1tR1A0HA4</code>
+            </div>
+
+            <form action="{{ url_for('resgate') }}" method="POST" class="space-y-4">
+                <div>
+                    <label for="chave_produto_modal" class="block text-[10px] font-bold text-purple-200 uppercase tracking-wider mb-2">Chave de Licença</label>
+                    <input type="text" id="chave_produto_modal" name="chave_produto" required placeholder="HA4H-XXXX-XXXX-XXXX" class="w-full bg-purple-950/60 border border-white/10 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/20 rounded-xl px-4 py-3 text-sm text-white placeholder-purple-400/40 outline-none transition font-mono">
+                </div>
+                <button type="submit" class="w-full bg-violet-400 hover:bg-violet-500 text-purple-950 font-black py-3.5 rounded-xl text-sm transition">
+                    ATIVAR LICENÇA
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <footer class="w-full text-center py-6 text-xs text-purple-400/60 z-10">
+        <p>&copy; 2026 Universal RPG. Todos os direitos reservados.</p>
+    </footer>
+
+    <script>
+        function abrirModalResgate() {
+            document.getElementById('modal_resgate_global').classList.remove('hidden');
+        }
+
+        function fecharModalResgate() {
+            document.getElementById('modal_resgate_global').classList.add('hidden');
+        }
+    </script>
+
+</body>
+</html>

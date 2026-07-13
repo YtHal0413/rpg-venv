@@ -1,0 +1,481 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal RPG - {{ campanha.nome }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+</head>
+<body class="text-white min-h-screen flex flex-col justify-between relative overflow-x-hidden">
+
+    <div class="ondas-background">
+        <div class="onda onda-1"></div>
+        <div class="onda onda-2"></div>
+        <div class="onda onda-3"></div>
+    </div>
+
+    <header class="w-full max-w-7xl mx-auto px-4 pt-6">
+        {% include 'partials/flash.html' %}
+
+        <nav class="bg-purple-950/30 border border-white/10 rounded-2xl px-6 py-4 flex items-center justify-between backdrop-blur-md">
+            <div class="flex items-center space-x-8">
+                <a href="{{ url_for('inicio') }}" class="flex items-center space-x-2">
+                    <img class="w-8 h-8" src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo">
+                </a>
+                <div class="hidden md:flex items-center space-x-6 text-sm font-medium text-purple-200">
+                    <a href="{{ url_for('inicio') }}" class="hover:text-white transition">Início</a>
+                    <a href="{{ url_for('livros') }}" class="hover:text-white transition">Arquivos</a>
+                    <a href="{{ url_for('colecoes') }}" class="hover:text-white transition">Coleções</a>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                {% if g.usuario.chave_ativada == False %}
+                <button onclick="abrirModalResgate()" class="bg-violet-400 hover:bg-violet-500 text-purple-950 font-bold px-4 py-2 rounded-xl text-sm flex items-center space-x-2 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M15 7a2 2 0 114 0c0 1.1-.9 2-2 2a2 2 0 01-2-2zM12 14c2.2 0 4-1.8 4-4H8c0 2.2 1.8 4 4 4z"/>
+                        <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z"/>
+                    </svg>
+                    <span>Resgatar Chave</span>
+                </button>
+                {% endif %}
+                <a href="{{ url_for('perfil') }}" class="w-10 h-10 rounded-full border-2 border-violet-400 overflow-hidden hover:opacity-80 transition block">
+                    {% if g.usuario.imagem_avatar %}
+                        <img src="{{ g.usuario.imagem_avatar }}" alt="Avatar" class="w-full h-full object-cover">
+                    {% else %}
+                        <div class="w-full h-full bg-violet-600 flex items-center justify-center font-bold text-white">
+                            {{ g.usuario.nome[0] | upper }}
+                        </div>
+                    {% endif %}
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="flex-grow w-full max-w-7xl mx-auto px-4 py-8 space-y-6 z-10">
+
+        <div class="bg-gradient-to-r from-purple-900/40 to-violet-800/20 backdrop-blur-md overflow-hidden relative border border-white/10 rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between">
+            <div class="absolute -right-16 -top-16 w-64 h-64 bg-violet-500/10 rounded-full blur-3xl"></div>
+            
+            <div class="flex items-center space-x-4 mb-4 md:mb-0">
+                <a href="{{ url_for('colecoes') }}" class="p-3 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition text-purple-300 hover:text-white">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                    </svg>
+                </a>
+                <div class="space-y-1">
+                    <span class="text-xs font-bold text-violet-400 uppercase tracking-widest">Campanha: </span>
+                    <form id="form-editar-campanha" method="post" action="{{ url_for('campanha_detalhes', id_campanha=campanha.id) }}" class="flex flex-col gap-2">
+                        <input type="text" name="nome" id="input-nome-campanha" value="{{ campanha.nome }}" class="hidden w-[150%] bg-purple-950/60 border border-white/10 rounded-2xl px-4 py-2 text-white text-xl sm:text-2xl font-black tracking-tight focus:outline-none focus:ring-2 focus:ring-violet-400" />
+                        <h2 id="titulo-campanha" class="text-2xl sm:text-3xl font-black tracking-tight text-white">{{ campanha.nome }}</h2>
+                    </form>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                {% if g.usuario.id == campanha.id_mestre %}
+                <button type="button" id="botao-editar-campanha" onclick="toggleEdicaoCampanha()" class="ml-2 bg-white/10 hover:bg-white/20 text-violet-200 border border-violet-300/30 font-semibold px-3 py-1.5 rounded-lg text-xs transition">
+                    Editar
+                </button>
+                {% endif %}
+
+                <div class="flex items-center space-x-3 bg-violet-400/20 border border-violet-400/30 rounded-2xl px-5 py-3">
+                    <p class="text-[10px] font-bold text-purple-300 uppercase tracking-wider">Código de Convite:</p>
+                    <p class="font-mono text-sm text-violet-300 font-bold mt-0.5 select-all">{{ campanha.id }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <div class="lg:col-span-2 space-y-6">
+                
+                <div class="bg-gradient-to-r from-purple-900/40 to-violet-800/20 backdrop-blur-md overflow-hidden border border-white/10 rounded-3xl p-6 space-y-4">
+                    <h3 class="text-lg font-black tracking-tight flex items-center space-x-2 text-white">
+                        <span>Sobre: </span>
+                    </h3>
+
+                    <form id="form-descricao-campanha" method="post" action="{{ url_for('campanha_detalhes', id_campanha=campanha.id) }}" class="space-y-3">
+                        <textarea name="descricao" id="input-descricao-campanha" class="hidden w-full min-h-[120px] bg-purple-950/60 border border-purple-400/40 rounded-2xl p-4 text-sm text-purple-200/70 leading-relaxed focus:outline-none focus:ring-2 focus:ring-violet-400" placeholder="Descreva esta campanha...">{{ campanha.descricao or '' }}</textarea>
+                        {% if campanha.descricao %}
+                        <p id="descricao-campanha" class="text-sm text-purple-200/70 text-justify leading-relaxed bg-purple-950/60 border border-purple-400/40 rounded-2xl p-4 min-h-[120px]">
+                            {{ campanha.descricao }}
+                        </p>
+                        {% else %}
+                        <p id="descricao-campanha" class="text-sm text-purple-200/70 leading-relaxed bg-purple-950/60 border-dashed border-purple-400/40 rounded-2xl p-4 min-h-[120px]">
+                            Nenhuma descrição fornecida para esta campanha.
+                        </p>
+                        {% endif %}
+                    </form>
+                </div>
+
+                <div class="bg-gradient-to-r from-purple-900/40 to-violet-800/20 backdrop-blur-md overflow-hidden border border-white/10 rounded-3xl p-6 space-y-4">
+                    <div class="flex items-center justify-between pb-3 border-b border-white/5">
+                        <h3 class="text-lg font-black tracking-tight flex items-center space-x-2 text-white">
+                            <span>Livros da Mesa</span>
+                        </h3>
+                        {% if g.usuario.id == campanha.id_mestre %}
+                            <button type="button" onclick="abrirModalAnexarArquivo()" class="bg-violet-400 hover:bg-violet-500 text-purple-950 font-black rounded-lg text-xs py-1.5 px-3 transition shadow-lg shadow-violet-500/20 animate-pulse">
+                                + VINCULAR LIVROS
+                            </button>
+                        {% endif %}
+                    </div>
+
+                    <div class="space-y-4">
+                        {% if livros_campanha %}
+                            {% for livro in livros_campanha %}
+                                <div class="p-4 bg-[rgba(30,10,50,0.6)] border border-white/5 rounded-2xl flex items-center justify-between hover:border-violet-400/30 transition">
+                                    <div class="flex items-center space-x-3 overflow-hidden">
+                                        <svg class="w-8 h-8 text-violet-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                                        </svg>
+                                        <div class="overflow-hidden">
+                                            <a href="{{ url_for('static', filename='uploads/' ~ livro.caminho) }}" target="_blank" rel="noopener" class="text-sm font-bold text-white truncate hover:text-violet-300 transition">{{ livro.nome }}</a>
+                                            <p class="text-[10px] text-purple-400">Atalho compartilhado</p>
+                                        </div>
+                                    </div>
+                                    {% if g.usuario.id == campanha.id_mestre %}
+                                    <form action="{{ url_for('remover_arquivo_campanha', id_campanha=campanha.id) }}" method="POST" class="ml-2" onsubmit="return confirm('Remover este vínculo de arquivo da campanha?');">
+                                        <input type="hidden" name="nome_arquivo" value="{{ livro.nome }}">
+                                        <button type="submit" class="p-2 text-purple-300/70 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                            </svg>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="py-8 text-center bg-purple-950/10 rounded-2xl border border-white/5">
+                                <p class="text-xs text-purple-300/40">Nenhum livro associado a esta mesa ainda.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="space-y-6">
+
+                <div class="bg-gradient-to-r from-purple-900/40 to-violet-800/20 backdrop-blur-md overflow-hidden border border-white/10 rounded-3xl p-6 space-y-4">
+                    <h3 class="text-lg font-black tracking-tight flex items-center space-x-2 text-white">
+                        <span>Usuários da Mesa</span>
+                    </h3>
+                    
+                    <div class="space-y-3">
+                        <!-- Mestre da Campanha -->
+                        <div class="flex items-center justify-between p-3 rounded-2xl bg-[rgba(30,10,50,0.6)] border border-white/5">
+                            <div class="flex items-center space-x-3">
+                                <!-- Avatar do Mestre -->
+                                <div class="w-9 h-9 rounded-full overflow-hidden border-2 border-violet-400/40 flex-shrink-0 bg-purple-950/60">
+                                    {% if mestre and mestre.imagem_avatar %}
+                                        <img src="{{ mestre.imagem_avatar }}" alt="{{ mestre.nome }}" class="w-full h-full object-cover">
+                                    {% else %}
+                                        <div class="w-full h-full bg-violet-600 flex items-center justify-center font-bold text-white text-sm">
+                                            {{ (mestre.nome[0] if mestre and mestre.nome else 'M') | upper }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <p class="text-sm font-bold text-white">{{ mestre.nome if mestre else 'Mestre da Campanha' }}</p>
+                                    <p class="text-[10px] text-purple-400">Responsável pela mesa</p>
+                                </div>
+                            </div>
+                            <span class="bg-violet-400/20 border border-violet-400/30 text-violet-300 text-[9px] font-bold px-2 py-1 rounded-md uppercase tracking-wider">Mestre</span>
+                        </div>
+
+                        <!-- Jogadores -->
+                        {% if participantes %}
+                            {% for participante in participantes %}
+                                <div class="flex items-center justify-between p-3 rounded-2xl bg-[rgba(30,10,50,0.6)] border border-white/5 hover:border-violet-400/30 transition">
+                                    <div class="flex items-center space-x-3">
+                                        <!-- Avatar do Jogador -->
+                                        <div class="w-9 h-9 rounded-full overflow-hidden border border-white/10 flex-shrink-0 bg-purple-950/60">
+                                            {% if participante.usuario.imagem_avatar %}
+                                                <img src="{{ participante.usuario.imagem_avatar }}" alt="{{ participante.usuario.nome }}" class="w-full h-full object-cover">
+                                            {% else %}
+                                                <div class="w-full h-full bg-purple-600 flex items-center justify-center font-bold text-white text-sm">
+                                                    {{ participante.usuario.nome[0] | upper }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-bold text-white">{{ participante.usuario.nome }}</p>
+                                            <p class="text-[10px] text-purple-400">{{ participante.detalhe }}</p>
+                                        </div>
+                                    </div>
+                                    <span class="bg-purple-950/40 text-purple-300 border border-white/10 text-[9px] font-bold px-2 py-1 rounded-md uppercase tracking-wider">{{ participante.role }}</span>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="py-5 rounded-2xl bg-purple-950/10 border border-white/5 text-center text-xs text-purple-300/40">
+                                Nenhum jogador convidado nesta campanha ainda.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-purple-900/40 to-violet-800/20 backdrop-blur-md overflow-hidden border border-white/10 rounded-3xl p-6 space-y-4">
+                    <div class="flex items-center justify-between pb-3 border-b border-white/5">
+                        <h3 class="text-lg font-black tracking-tight flex items-center space-x-2 text-white">
+                            <span>Personagens da Mesa</span>
+                        </h3>
+                        <button onclick="abrirModalVincularFicha()" class="bg-violet-400 hover:bg-violet-500 text-purple-950 font-black rounded-lg text-xs px-3 py-1.5 py-1.5 transition shadow-lg shadow-violet-500/20 animate-pulse">
+                            + VINCULAR FICHA
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        {% for ficha in fichas_campanha %}
+                            <div class="flex items-center justify-between p-3 rounded-2xl bg-[rgba(30,10,50,0.6)] border border-white/5 hover:border-violet-400/30 transition">
+                                <a href="{{ url_for('criador_ficha', id_ficha=ficha.id) }}" class="flex items-center space-x-3 flex-1 cursor-pointer">
+                                    <!-- Avatar do Personagem na Campanha -->
+                                    <div class="w-8 h-8 rounded-lg overflow-hidden border border-violet-400/20 flex-shrink-0 bg-purple-950/60">
+                                        {% if ficha.avatar %}
+                                            <img src="{{ ficha.avatar }}" alt="{{ ficha.nome_personagem }}" class="w-full h-full object-cover">
+                                        {% else %}
+                                            <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-violet-600/20 to-purple-600/20">
+                                                <svg class="w-4 h-4 text-violet-400/60" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                                                </svg>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-bold text-white">{{ ficha.nome_personagem }}</p>
+                                    </div>
+                                </a>
+                                {% if g.usuario.id == campanha.id_mestre or g.usuario.id == ficha.id_usuario %}
+                                <form action="{{ url_for('remover_ficha_campanha', id_campanha=campanha.id) }}" method="POST" class="ml-2" onsubmit="return confirm('Remover este vínculo de personagem da campanha?');">
+                                    <input type="hidden" name="ficha_id" value="{{ ficha.id }}">
+                                    <button type="submit" class="p-2 text-purple-300/70 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                        </svg>
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <p id="texto_sem_fichas" class="text-xs text-purple-300/40 text-center py-4">Nenhum personagem vinculado à mesa ainda.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <script>
+        function toggleEdicaoCampanha() {
+            const button = document.getElementById('botao-editar-campanha');
+            const inputNome = document.getElementById('input-nome-campanha');
+            const titulo = document.getElementById('titulo-campanha');
+            const inputDescricao = document.getElementById('input-descricao-campanha');
+            const descricao = document.getElementById('descricao-campanha');
+            const formNome = document.getElementById('form-editar-campanha');
+            const formDescricao = document.getElementById('form-descricao-campanha');
+
+            const editando = !inputNome.classList.contains('hidden');
+
+            if (!editando) {
+                inputNome.classList.remove('hidden');
+                titulo.classList.add('hidden');
+                inputDescricao.classList.remove('hidden');
+                descricao.classList.add('hidden');
+                button.textContent = 'Salvar';
+                inputNome.focus();
+                return;
+            }
+
+            const nome = inputNome.value.trim();
+            if (!nome) {
+                inputNome.focus();
+                return;
+            }
+
+            const hiddenDescricaoInput = document.createElement('input');
+            hiddenDescricaoInput.type = 'hidden';
+            hiddenDescricaoInput.name = 'descricao';
+            hiddenDescricaoInput.value = inputDescricao.value;
+            formNome.appendChild(hiddenDescricaoInput);
+
+            formNome.submit();
+        }
+    </script>
+
+    <!-- Modal: Vincular Ficha -->
+    <div id="modal_vincular_ficha" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="w-full max-w-md bg-purple-950/60 border border-white/10 rounded-3xl p-6 sm:p-8 space-y-6 relative shadow-2xl">
+            <button onclick="fecharModalVincularFicha()" class="absolute right-4 top-4 p-1 text-purple-400 hover:text-white transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <div class="text-center space-y-2">
+                <div class="w-12 h-12 bg-violet-500/20 border border-violet-500/30 rounded-2xl flex items-center justify-center mx-auto text-violet-400">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.75" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.81 15.312a4.5 4.5 0 0 1-1.243-7.244l4.5-4.5a4.5 4.5 0 0 1 6.364 6.364l-1.757 1.75" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-black text-white">Vincular Personagem</h3>
+                <p class="text-xs text-purple-200/70 leading-relaxed">
+                    Escolha um de seus personagens criados para anexá-lo ativamente a esta campanha.
+                </p>
+            </div>
+
+            <form action="{{ url_for('vincular_ficha_campanha', id_campanha=campanha.id) }}" method="POST" class="space-y-4">
+                <div class="space-y-2 max-h-[200px] overflow-y-auto pr-2">
+                    {% if fichas_disponiveis %}
+                        {% for ficha in fichas_disponiveis %}
+                            <label class="flex items-center justify-between p-3 rounded-xl bg-purple-950/60 border border-white/5 hover:border-violet-400/30 transition cursor-pointer">
+                                <div class="flex items-center space-x-3">
+                                    <input type="radio" name="ficha_id" value="{{ ficha.id }}" class="text-violet-400 focus:ring-violet-400/20 bg-purple-950/60 border-white/10">
+                                    <span class="text-sm font-bold text-white">{{ ficha.nome_personagem }}</span>
+                                </div>
+                            </label>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-xs text-purple-300/40 text-center py-6">Você não possui personagens livres para vincular.</p>
+                    {% endif %}
+                </div>
+                <button type="submit" {% if not fichas_disponiveis %}disabled{% endif %} class="w-full bg-violet-400 hover:bg-violet-500 disabled:opacity-55 disabled:hover:bg-violet-400 text-purple-950 font-black py-3.5 rounded-xl text-sm transition">
+                    CONFIRMAR VÍNCULO
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Anexar Arquivo -->
+    <div id="modal_anexar_arquivo" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="w-full max-w-md bg-purple-950/60 border border-white/10 rounded-3xl p-6 sm:p-8 space-y-6 relative shadow-2xl">
+            <button onclick="fecharModalAnexarArquivo()" class="absolute right-4 top-4 p-1 text-purple-400 hover:text-white transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <div class="text-center space-y-2">
+                <div class="w-12 h-12 bg-violet-500/20 border border-violet-500/30 rounded-2xl flex items-center justify-center mx-auto text-violet-400">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-black text-white">Anexar Arquivo à Campanha</h3>
+                <p class="text-xs text-purple-200/70 leading-relaxed">
+                    Selecione um PDF já existente em sua biblioteca para compartilhar com toda a campanha.
+                </p>
+            </div>
+
+            <form action="{{ url_for('anexar_arquivo_campanha', id_campanha=campanha.id) }}" method="POST" class="space-y-4">
+                <div class="space-y-3">
+                    <label for="arquivo_campanha" class="block text-xs font-bold text-purple-200 uppercase tracking-widest">Arquivo da sua biblioteca</label>
+                    <select id="arquivo_campanha" name="arquivo_campanha" required class="w-full bg-purple-950/60 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-violet-400 focus:ring-2 focus:ring-violet-400/20 outline-none transition">
+                        <option value="" disabled selected>Selecione um PDF para anexar</option>
+                        {% for arquivo in biblioteca_pessoal %}
+                            <option value="{{ arquivo }}">{{ arquivo }}</option>
+                        {% endfor %}
+                    </select>
+                    {% if not biblioteca_pessoal %}
+                        <p class="text-xs text-purple-300/40">Sua biblioteca pessoal não possui nenhum PDF carregado ainda.</p>
+                    {% endif %}
+                </div>
+                <button type="submit" class="w-full bg-violet-400 hover:bg-violet-500 text-purple-950 font-black py-3.5 rounded-xl text-sm transition">
+                    ANEXAR À CAMPANHA
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Resgate de Chave -->
+    <div id="modal_resgate_global" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="w-full max-w-md bg-purple-950/60 border border-white/10 rounded-3xl p-6 sm:p-8 space-y-6 relative shadow-2xl">
+            <button onclick="fecharModalResgate()" class="absolute right-4 top-4 p-1 text-purple-400 hover:text-white transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <div class="text-center space-y-2">
+                <div class="w-12 h-12 bg-violet-500/20 border border-violet-500/30 rounded-2xl flex items-center justify-center mx-auto text-violet-400">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M15 7a2 2 0 114 0c0 1.1-.9 2-2 2a2 2 0 01-2-2zM12 14c2.2 0 4-1.8 4-4H8c0 2.2 1.8 4 4 4z"/>
+                        <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-black text-white">Resgatar Chave do Produto</h3>
+                <p class="text-xs text-purple-200/70 leading-relaxed">
+                    Insira sua chave para ativar o nível 2 de acesso e desbloquear as ferramentas de criação de fichas e campanhas.
+                </p>
+            </div>
+
+            <div class="bg-violet-400/5 border border-violet-400/10 rounded-2xl p-4 text-center">
+                <p class="text-[10px] font-bold text-violet-300 uppercase tracking-widest">Chave de Testes</p>
+                <code class="block font-mono text-xs text-violet-300 bg-black/40 px-2 py-1.5 rounded-lg mt-2 select-all">HA4H4nF1tR1A0HA4</code>
+            </div>
+
+            <form action="{{ url_for('resgate') }}" method="POST" class="space-y-4">
+                <div>
+                    <label for="chave_produto_modal" class="block text-[10px] font-bold text-purple-200 uppercase tracking-wider mb-2">Chave de Licença</label>
+                    <input type="text" id="chave_produto_modal" name="chave_produto" required placeholder="HA4H-XXXX-XXXX-XXXX" class="w-full bg-purple-950/60 border border-white/10 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/20 rounded-xl px-4 py-3 text-sm text-white placeholder-purple-400/40 outline-none transition font-mono">
+                </div>
+                <button type="submit" class="w-full bg-violet-400 hover:bg-violet-500 text-purple-950 font-black py-3.5 rounded-xl text-sm transition">
+                    ATIVAR LICENÇA
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <footer class="w-full text-center py-6 text-xs text-purple-400/60 z-10">
+        <p>&copy; 2026 Universal RPG. Todos os direitos reservados.</p>
+    </footer>
+
+    <script>
+        function abrirModalResgate() {
+            document.getElementById('modal_resgate_global').classList.remove('hidden');
+        }
+
+        function fecharModalResgate() {
+            document.getElementById('modal_resgate_global').classList.add('hidden');
+        }
+
+        function abrirModalVincularFicha() {
+            document.getElementById('modal_vincular_ficha').classList.remove('hidden');
+        }
+
+        function fecharModalVincularFicha() {
+            document.getElementById('modal_vincular_ficha').classList.add('hidden');
+        }
+
+        function abrirModalAnexarArquivo() {
+            document.getElementById('modal_anexar_arquivo').classList.remove('hidden');
+        }
+
+        function fecharModalAnexarArquivo() {
+            document.getElementById('modal_anexar_arquivo').classList.add('hidden');
+        }
+
+        function copiarCodigo() {
+            const codigo = "{{ campanha.id }}";
+            const tempInput = document.createElement("input");
+            tempInput.value = codigo;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+            
+            const btn = document.querySelector("[onclick='copiarCodigo()']");
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = `<span class="text-xs text-emerald-400 font-bold">Copiado!</span>`;
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+            }, 1500);
+        }
+    </script>
+
+</body>
+</html>
